@@ -4,13 +4,14 @@ const tokens = (n) => {
   return ethers.utils.parseUnits(n.toString(), 18);
 };
 describe('Token', () => {
-  let token, accounts, deployer;
+  let token, accounts, deployer, receiver;
 
   beforeEach(async () => {
     const Token = await ethers.getContractFactory('Token');
     token = await Token.deploy('My Token', 'MT', 1000000);
     accounts = await ethers.getSigners();
     deployer = accounts[0];
+    receiver = accounts[1];
   });
 
   describe('Deployment', async () => {
@@ -36,6 +37,38 @@ describe('Token', () => {
 
     it('Assigns total supply to the deployer', async () => {
       expect(await token.balanceOf(deployer.address)).to.equal(totalSupply);
+    });
+    it('');
+  });
+
+  describe('Sending tokens', async () => {
+    let amount, transaction, receipt;
+
+    beforeEach(async () => {
+      amount = tokens(100);
+      transaction = await token
+        .connect(deployer)
+        .transfer(receiver.address, amount);
+      receipt = await transaction.wait();
+    });
+
+    it('Transfers tokens', async () => {
+      expect(await token.balanceOf(deployer.address)).to.equal(tokens(999900));
+      expect(await token.balanceOf(receiver.address)).to.equal(amount);
+    });
+
+    it('Emit a transfer event', async () => {
+      console.log('Transaction Receipt');
+      console.log(receipt);
+      const event = receipt.events[0];
+      expect(await event.event).to.equal('Transfer');
+
+      const args = event.args;
+      console.log('Event arguments');
+      console.log(args);
+      expect(args._from).to.equal(deployer.address);
+      expect(args._to).to.equal(receiver.address);
+      expect(args._value).to.equal(amount);
     });
   });
 });
