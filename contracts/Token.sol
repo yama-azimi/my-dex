@@ -28,8 +28,17 @@ contract Token {
         }
 
     function transfer(address _to, uint _value) public returns (bool success) {
+        require(
+            _to != address(0),
+            'Transfer to zero account is not permitted'
+        );
+        require(
+            balanceOf[msg.sender] >= _value,
+            "Insufficient Funds"
+        );
         balanceOf[msg.sender] = balanceOf[msg.sender] - _value; 
         balanceOf[_to] = balanceOf[_to] + _value; 
+
 
         emit Transfer(msg.sender, _to, _value);
 
