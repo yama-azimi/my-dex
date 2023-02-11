@@ -88,7 +88,7 @@ describe('Token', () => {
     });
   });
 
-  describe('Sending tokens', async () => {
+  describe('Approvals', async () => {
     let amount, transaction, receipt;
     beforeEach(async () => {
       amount = tokens(100);
@@ -115,7 +115,7 @@ describe('Token', () => {
         expect(args._value).to.equal(amount);
       });
     });
-    describe('Failing Transfers', () => {
+    describe('Failing Approvals', () => {
       it('Rejects approval if spender is the zero address', async () => {
         await expect(
           token
@@ -124,6 +124,51 @@ describe('Token', () => {
         ).to.be.revertedWith('Approval of zero address is not permitted');
       });
     });
+  });
+
+  describe('Delegated Token Transfers', async () => {
+    let amount, transaction, receipt;
+    beforeEach(async () => {
+      amount = tokens(100);
+      await token
+        .connect(deployer)
+        .approve(decentralizedExchange.address, amount);
+    });
+
+    describe('Successful Delegated Token Transfers', () => {
+      beforeEach(async () => {
+        transaction = await token
+          .connect(decentralizedExchange)
+          .transferFrom(deployer.address, receiver.address, amount);
+        receipt = await transaction.wait();
+      });
+
+      it('Transfers tokens', async () => {
+        expect(await token.balanceOf(deployer.address)).to.equal(
+          tokens(999900)
+        );
+        expect(await token.balanceOf(receiver.address)).to.equal(amount);
+      });
+
+      it('Emits a transfer event', async () => {
+        const event = receipt.events[0];
+        expect(await event.event).to.equal('Transfer');
+
+        const args = event.args;
+        expect(args._from).to.equal(deployer.address);
+        expect(args._to).to.equal(receiver.address);
+        expect(args._value).to.equal(amount);
+      });
+
+      it('Resets the allowance', async () => {
+        expect(
+          await token.allowance(deployer.address, decentralizedExchange.address)
+        ).to.equal(tokens(0));
+      });
+    });
+  });
+  describe('Failing Delegated Token Transfers', () => {
+    // Test for failing delagated token transfers.
   });
 });
 

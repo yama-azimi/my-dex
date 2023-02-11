@@ -63,5 +63,14 @@ contract Token {
         return true;
     }
 
+    function transferFrom(address _from, address _to, uint _value) public returns (bool success) {
+        balanceOf[_from] = balanceOf[_from] - _value;
+        balanceOf[_to] = balanceOf[_to] + _value; 
+        allowance[_from][msg.sender] = allowance[_from][msg.sender] - _value;      
+
+        emit Transfer(_from, _to, _value);
+        return true; 
+    }
+
     
 }
