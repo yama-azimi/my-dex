@@ -74,7 +74,7 @@ describe('Token', () => {
         const invalidAmount = tokens(10);
         await expect(
           token.connect(receiver).transfer(deployer.address, invalidAmount)
-        ).to.be.revertedWith('Insufficient Funds');
+        ).to.be.revertedWith('Insufficient funds');
       });
 
       it('Rejects if the receiver is zero address', async () => {
@@ -83,7 +83,7 @@ describe('Token', () => {
           token
             .connect(deployer)
             .transfer('0x0000000000000000000000000000000000000000', amount)
-        ).to.be.revertedWith('Transfer to zero account is not permitted');
+        ).to.be.revertedWith('Transfer to zero address is not permitted');
       });
     });
   });
@@ -166,9 +166,41 @@ describe('Token', () => {
         ).to.equal(tokens(0));
       });
     });
-  });
-  describe('Failing Delegated Token Transfers', () => {
-    // Test for failing delagated token transfers.
+
+    describe('Failing Delegated Token Transfers', () => {
+      it("Rejects transfer if 'from' address doesn't have sufficient funds", async () => {
+        const invalidAmount = tokens(1000001);
+        await token
+          .connect(deployer)
+          .approve(decentralizedExchange.address, invalidAmount);
+        await expect(
+          token
+            .connect(decentralizedExchange)
+            .transferFrom(deployer.address, receiver.address, invalidAmount)
+        ).to.be.revertedWith('Insufficient funds');
+      });
+
+      it('Rejects if receiver is the zero address', async () => {
+        await expect(
+          token
+            .connect(decentralizedExchange)
+            .transferFrom(
+              deployer.address,
+              '0x0000000000000000000000000000000000000000',
+              amount
+            )
+        ).to.be.revertedWith('Transfer to zero address is not permitted');
+      });
+
+      it("Rejects if sender doesn't have sufficient allowance", async () => {
+        const invalidAmount = tokens(1000);
+        await expect(
+          token
+            .connect(decentralizedExchange)
+            .transferFrom(deployer.address, receiver.address, invalidAmount)
+        ).to.be.revertedWith('Insufficient allowance');
+      });
+    });
   });
 });
 
