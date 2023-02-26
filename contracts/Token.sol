@@ -21,7 +21,9 @@ contract Token {
         address indexed _spender,
         uint _value
     );
-    constructor(
+    
+    constructor
+        (
             string memory _name, 
             string memory _symbol, 
             uint _totalSupply
@@ -53,7 +55,7 @@ contract Token {
 
     function transferFrom(address _from, address _to, uint _value) public returns (bool success) {
         require(
-            allowance[_from][msg.sender]>= _value,
+            allowance[_from][msg.sender] >= _value,
             'Insufficient allowance'
         );
         _transfer(_from, _to, _value);
