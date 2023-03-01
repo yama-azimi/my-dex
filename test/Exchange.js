@@ -6,7 +6,7 @@ const tokens = (n) => {
 };
 
 describe('Exchange', () => {
-  let deployer, feeAccount, exchange;
+  let deployer, feeAccount, exchange, token1;
 
   const feePercent = 10;
 
@@ -27,5 +27,19 @@ describe('Exchange', () => {
     it('Tracks the fee account', async () => {
       expect(await exchange.feePercent()).to.equal(feePercent);
     });
+  });
+
+  describe('Depositing Tokens', () => {
+    beforeEach(async () => {
+      // Approve tokens
+      // Deposit tokens
+    });
+
+    // it('It tracks the token deposits', async () => {
+    //   expect(await exchange.)
+    // });
+    // // it('Emits a Deposit event', async () => {
+    // //   expect(await exchange.)
+    // // });
   });
 });

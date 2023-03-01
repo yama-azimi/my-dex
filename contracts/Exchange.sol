@@ -9,4 +9,4 @@ contract Exchange {
         feeAccount = _feeAccount;
         feePercent = _feePercent;
     }
-} 
+}    
