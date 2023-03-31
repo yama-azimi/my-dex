@@ -148,12 +148,52 @@ describe('Exchange', () => {
       it('It counts orders', async () => {
         expect(await exchange.orderCount()).to.equal(1);
       });
-      xit('Instantiate and stores the orders correctly', async () => {});
-      xit('Emits an order event', async () => {});
+      it('Instantiate and stores the orders correctly', async () => {
+        const orderId = 1;
+        const {
+          id,
+          user,
+          tokenGet,
+          amountGet,
+          tokenGive,
+          amountGive,
+          timestamp,
+        } = { ...(await exchange.orders(orderId)) };
+        expect(id).to.equal(1);
+        expect(user).to.equal(user1.address);
+        expect(tokenGet).to.equal(token2.address);
+        expect(amountGet).to.equal(amount);
+        expect(tokenGive).to.equal(token1.address);
+        expect(amountGive).to.equal(amount);
+        // This is Unix time. Since the value depends on when we execute the
+        // tes, it's hard to test for a specific time value. Instead, we just
+        // make sure it exists by requiring it to be at least 1.
+        expect(timestamp).to.be.at.least(1);
+      });
+
+      it('Emits an order event', async () => {
+        const event = receipt.events[0];
+        expect(event.event).to.equal('Order');
+
+        const args = event.args;
+        expect(args._id).to.equal(1);
+        expect(args._user).to.equal(user1.address);
+        expect(args._tokenGet).to.equal(token2.address);
+        expect(args._amountGet).to.equal(amount);
+        expect(args._tokenGive).to.equal(token1.address);
+        expect(args._amountGive).to.equal(amount);
+        expect(args._timestamp).to.be.at.least(1);
+      });
     });
 
     describe('Failing orders', () => {
-      xit('Rejects if user has insufficient balance', async () => {});
+      it('Rejects if user has insufficient balance', async () => {
+        await expect(
+          exchange
+            .connect(user1)
+            .makeOrder(token2.address, amount, token1.address, amount)
+        ).to.be.revertedWith('Insufficient balance');
+      });
     });
   });
 });

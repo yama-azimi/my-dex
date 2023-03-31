@@ -6,9 +6,20 @@ import './Token.sol';
 contract Exchange {
     address public feeAccount; 
     uint public feePercent; 
-    uint public orderCount; 
+    uint public orderCount;
+    struct _Order {
+        // Attributes of an order
+        uint id;// Unique identifier for order
+        address user;// User who made order
+        address tokenGet;// Contract address of the token the user gets
+        uint amountGet;// Amount the user gets
+        address tokenGive;// Contract address of the token the user gives away
+        uint amountGive;// Amount the user gives
+        uint timestamp;// When the order was created (timestamp)
+    }
 
     mapping(address => mapping(address => uint)) public tokens; 
+    mapping(uint => _Order) public orders; 
 
     event Deposit (
         address _token,
@@ -22,6 +33,16 @@ contract Exchange {
         address _user,
         uint _amount,
         uint _balance
+    );
+
+    event Order(
+        uint _id,
+        address _user,
+        address _tokenGet,
+        uint _amountGet,
+        address _tokenGive,
+        uint _amountGive,
+        uint _timestamp 
     );
 
     constructor(address _feeAccount, uint _feePercent) {
@@ -50,7 +71,33 @@ contract Exchange {
     }
 
     function makeOrder(address _tokenGet, uint _amountGet, address _tokenGive, uint _amountGive) public {
+        require(
+            balanceOf(_tokenGive, msg.sender) >=_amountGive, 
+            'Insufficient balance'
+        );
+
         orderCount = orderCount + 1; 
+
+        orders[orderCount] = _Order(
+            orderCount,
+            // user1 is the one calling this function 
+            msg.sender,
+            _tokenGet,
+            _amountGet,
+            _tokenGive,
+            _amountGive,
+            block.timestamp
+        );
+
+        emit Order(
+            orderCount,
+            msg.sender,
+            _tokenGet,
+            _amountGet,
+            _tokenGive,
+            _amountGive,
+            block.timestamp
+        );
     }
 
 }
