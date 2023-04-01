@@ -85,6 +85,10 @@ contract Exchange {
             balanceOf(_tokenGive, msg.sender) >=_amountGive, 
             'Insufficient balance'
         );
+        require(
+            _amountGet % 100 == 0,
+            'Invalid value for _amountGet. Must be multiple of 100.'   
+        );
 
         orderCount = orderCount + 1; 
 
@@ -137,6 +141,45 @@ contract Exchange {
             _order.amountGive,
             block.timestamp
         );
+    }
+
+    function fillOrder(uint _id) public {
+        // Fetch the order
+        _Order memory _order = orders[_id];
+        // Executes the trade
+        _trade(
+            _order.id,
+            _order.user,
+            _order.tokenGet,
+            _order.amountGet,
+            _order.tokenGive,
+            _order.amountGive
+        );
+    }
+
+    function _trade(
+        uint _orderId,
+        address _user,
+        address _tokenGet,
+        uint _amountGet,
+        address _tokenGive,
+        uint _amountGive
+    ) internal {
+        // Fee is paid by the user who failed the order (msg.sender)
+        // Fee is deducted from the _amountGet
+        uint _feeAmount = _amountGet * feePercent / 100;
+        // Execute the trade
+        // msg.sender is the one who filled the order
+        // while the _user is the one who created the order
+        tokens[_tokenGet][msg.sender] -= _amountGet + _feeAmount;
+        tokens[_tokenGet][_user] += _amountGet;
+
+        tokens[_tokenGive][msg.sender] += _amountGive;
+        tokens[_tokenGive][_user] -= _amountGive;
+
+        // Charge fees
+        tokens[_tokenGet][feeAccount] += _feeAmount;
+
     }
 
 }
