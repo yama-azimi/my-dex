@@ -21,6 +21,8 @@ contract Exchange {
     mapping(address => mapping(address => uint)) public tokens; 
     mapping(uint => _Order) public orders; 
     mapping(uint => bool) public orderCancelled; 
+    mapping(uint => bool) public orderFilled; 
+
 
     event Deposit (
         address _token,
@@ -52,6 +54,16 @@ contract Exchange {
         uint _amountGet,
         address _tokenGive,
         uint _amountGive,
+        uint _timestamp 
+    );
+    event Trade(
+        uint _id,
+        address _user,
+        address _tokenGet,
+        uint _amountGet,
+        address _tokenGive,
+        uint _amountGive,
+        address _creator,
         uint _timestamp 
     );
 
@@ -146,6 +158,23 @@ contract Exchange {
     function fillOrder(uint _id) public {
         // Fetch the order
         _Order memory _order = orders[_id];
+        
+        require(
+            _id > 0 && _id <= orderCount,
+            'Invalid order id'
+        );
+
+        // Order can't be already filled
+        require(
+            !orderFilled[_id], 
+            'Order already filled'
+        );
+
+        // Order can't be canceled
+        require(
+            !orderCancelled[_id],
+            "Can't fill cancelled order"
+        );
         // Executes the trade
         _trade(
             _order.id,
@@ -155,6 +184,9 @@ contract Exchange {
             _order.tokenGive,
             _order.amountGive
         );
+
+        // Mark order as filled
+        orderFilled[_order.id] = true;
     }
 
     function _trade(
@@ -168,6 +200,12 @@ contract Exchange {
         // Fee is paid by the user who failed the order (msg.sender)
         // Fee is deducted from the _amountGet
         uint _feeAmount = _amountGet * feePercent / 100;
+
+        // User who fills the order must have sufficient balance
+        require(
+            balanceOf(_tokenGet, msg.sender) >= _amountGet + _feeAmount,
+            'Insufficient balance'
+        );
         // Execute the trade
         // msg.sender is the one who filled the order
         // while the _user is the one who created the order
@@ -179,6 +217,17 @@ contract Exchange {
 
         // Charge fees
         tokens[_tokenGet][feeAccount] += _feeAmount;
+
+        emit Trade(
+            _orderId,
+            msg.sender,
+            _tokenGet,
+            _amountGet,
+            _tokenGive,
+            _amountGive,
+            _user,
+            block.timestamp
+        );
 
     }
 

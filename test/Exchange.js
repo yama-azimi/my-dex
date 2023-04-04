@@ -308,17 +308,55 @@ describe('Exchange', () => {
             await exchange.balanceOf(token2.address, feeAccount.address)
           ).to.equal(tokens(0.1));
         });
-        xit('Updates filled orders', async () => {
-          //
+        it('Updates filled orders', async () => {
+          expect(await exchange.orderFilled(1)).to.equal(true);
         });
-        xit('Emits a Trade event', async () => {
-          //
+        it('Emits a Trade event', async () => {
+          const event = receipt.events[0];
+          expect(event.event).to.equal('Trade');
+
+          const args = event.args;
+          expect(args._id).to.equal(1);
+          expect(args._user).to.equal(user2.address);
+          expect(args._tokenGet).to.equal(token2.address);
+          expect(args._amountGet).to.equal(amount);
+          expect(args._tokenGive).to.equal(token1.address);
+          expect(args._amountGive).to.equal(amount);
+          expect(args._creator).to.equal(user1.address);
+          expect(args._timestamp).to.be.at.least(1);
         });
       });
       describe('Failing Trades', () => {
-        xit('Rejects invalid order ids', async () => {});
-        xit('Rejects already filled orders', async () => {});
-        xit('Rejects cancelled orders', async () => {});
+        it('Rejects invalid order ids', async () => {
+          const invalidOrderId = 42;
+          await expect(
+            exchange.connect(user2).fillOrder(invalidOrderId)
+          ).to.be.rejectedWith('Invalid order id');
+        });
+        it("Rejects if user doesn't have enough fund to fill the order", async () => {
+          // user2 withdraws 1 T2
+          await exchange
+            .connect(user2)
+            .withdrawToken(token2.address, tokens(1));
+          // user2 tries to fill the order. i.e. user2 1.1 T2 to fill the order but only has 1 T2
+          await expect(exchange.connect(user2).fillOrder(1)).to.be.revertedWith(
+            'Insufficient balance'
+          );
+        });
+        it('Rejects already filled orders', async () => {
+          await exchange.connect(user2).fillOrder(1);
+          await expect(exchange.connect(user2).fillOrder(1)).to.be.revertedWith(
+            'Order already filled'
+          );
+        });
+        it('Rejects cancelled orders', async () => {
+          // User1 cancels order
+          await exchange.connect(user1).cancelOrder(1);
+          // User2 fills the cancelled order
+          await expect(exchange.connect(user2).fillOrder(1)).to.be.revertedWith(
+            "Can't fill cancelled order"
+          );
+        });
       });
     });
   });
