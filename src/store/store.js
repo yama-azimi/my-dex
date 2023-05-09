@@ -3,9 +3,9 @@ import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 
 // Import Reducers
-import { provider } from './reducers.js';
+import { provider, tokens } from './reducers.js';
 
-const reducer = combineReducers({ provider });
+const reducer = combineReducers({ provider, tokens });
 
 const initialState = {};
 const middleware = [thunk];
