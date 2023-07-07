@@ -32,6 +32,7 @@ const DEFAULT_TOKENS_STATE = {
 	loaded: false,
 	contracts: [],
 	symbols: [],
+	balances: [],
 };
 export const tokens = (state = DEFAULT_TOKENS_STATE, action) => {
 	switch (action.type) {
@@ -71,6 +72,7 @@ const DEFAULT_EXCHANGE_STATE = {
 	contract: {},
 	transaction: { isSuccessful: false },
 	events: [],
+	balances: [],
 };
 export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
 	switch (action.type) {
