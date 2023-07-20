@@ -25,13 +25,13 @@ const Balance = () => {
 	const withdrawRef = useRef(null);
 
 	const tabHandler = (e) => {
-		if (e.target.className != depositRef.current.className) {
+		if (e.target.className !== depositRef.current.className) {
 			e.target.className = 'tab tab--active';
 			depositRef.current.className = 'tab';
 			setIsDeposit(false);
 		} else {
 			e.target.className = 'tab tab--active';
-			withdrawRef.current.className = 'tab ';
+			withdrawRef.current.className = 'tab';
 			setIsDeposit(true);
 		}
 	};
@@ -63,14 +63,20 @@ const Balance = () => {
 			setToken2TransferAmount(0);
 		}
 
-		console.log('Withdrawing tokens ....');
+		// console.log('Withdrawing tokens ....');
 	};
 
+	// useEffect(() => {
+	// 	if (exchange && tokens && account) {
+	// 		loadBalances(exchange, tokens, account, dispatch);
+	// 	}
+	// }, [exchange, tokens, account, transferInProgress, dispatch]);
+
 	useEffect(() => {
-		if (exchange && tokens && account) {
+		if (exchange && tokens.length > 1 && !!account) {
 			loadBalances(exchange, tokens, account, dispatch);
 		}
-	}, [exchange, tokens, account, dispatch, transferInProgress]);
+	}, [exchange, tokens, account, transferInProgress, dispatch]);
 
 	return (
 		<div className='component exchange__transfers'>
@@ -85,9 +91,7 @@ const Balance = () => {
 					</button>
 				</div>
 			</div>
-
 			{/* Deposit/Withdraw Component 1 (MT) */}
-
 			<div className='exchange__transfers--form'>
 				<div className='flex-between'>
 					<p>
@@ -113,11 +117,8 @@ const Balance = () => {
 					</button>
 				</form>
 			</div>
-
 			<hr />
-
 			{/* Deposit/Withdraw Component 2 (mETH) */}
-
 			<div className='exchange__transfers--form'>
 				<div className='flex-between'>
 					<p>

@@ -71,16 +71,18 @@ const DEFAULT_EXCHANGE_STATE = {
 	loaded: false,
 	contract: {},
 	transaction: { isSuccessful: false },
+	allOrders: { loaded: false, data: [] },
 	events: [],
-	balances: [],
 };
+
 export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
+	let index, data;
 	switch (action.type) {
 		case 'EXCHANGE_LOADED':
 			return {
 				...state,
 				loaded: true,
-				contract: action.exchange, // Accidently, contract was stored in an array '[action.exchange]'
+				contract: action.exchange,
 			};
 		case 'EXCHANGE_TOKEN_1_BALANCE_LOADED':
 			return {
@@ -92,39 +94,78 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
 				...state,
 				balances: [...state.balances, action.balance],
 			};
-		case ' TRANSFER_REQUEST':
+		case 'TRANSFER_REQUEST':
 			return {
 				...state,
 				transaction: {
-					transactionType: 'Trasfer',
+					transactionType: 'Transfer',
 					isPending: true,
 					isSuccessful: false,
 				},
 				transferInProgress: true,
 			};
-		case ' TRANSFER_SUCCESS':
+		case 'TRANSFER_SUCCESS':
 			return {
 				...state,
 				transaction: {
-					transactionType: 'Trasfer',
+					transactionType: 'Transfer',
 					isPending: false,
 					isSuccessful: true,
 				},
 				transferInProgress: false,
-				events: [action.event, ...state.events],
+				events: [action.event],
 			};
-		case ' TRANSFER_FAIL':
+		case 'TRANSFER_FAIL':
 			return {
 				...state,
 				transaction: {
-					transactionType: 'Trasfer',
+					transactionType: 'Transfer',
 					isPending: false,
 					isSuccessful: false,
 					isError: true,
 				},
 				transferInProgress: false,
 			};
-
+		case 'NEW_ORDER_REQUEST':
+			return {
+				...state,
+				transaction: {
+					transactionType: 'New Order',
+					isPending: true,
+					isSuccessful: false,
+				},
+			};
+		case 'NEW_ORDER_FAIL':
+			return {
+				...state,
+				transaction: {
+					transactionType: 'New Order',
+					isPending: false,
+					isSuccessful: false,
+					isError: true,
+				},
+			};
+		case 'NEW_ORDER_SUCCESS':
+			index = state.allOrders.data.findIndex((order) => order._id.toString() === action.order._id.toString());
+			if (index === -1) {
+				data = [...state.allOrders.data, action.order];
+			} else {
+				data = state.allOrders.data;
+			}
+			return {
+				...state,
+				allOrders: {
+					...state.allOrders,
+					loaded: true,
+					data,
+				},
+				transaction: {
+					transactionType: 'New Order',
+					isPending: false,
+					isSuccessful: true,
+				},
+				events: [action.event, ...state.events],
+			};
 		default:
 			return state;
 	}

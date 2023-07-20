@@ -2,64 +2,53 @@ const config = require('../src/config.json');
 const { ethers } = require('hardhat');
 
 const tokens = (n) => {
-  return ethers.utils.parseUnits(n.toString(), 18);
+	return ethers.utils.parseUnits(n.toString(), 18);
 };
 
 async function main() {
-  // Fetch accounts from wallet
-  const accounts = await ethers.getSigners();
+	// Fetch accounts from wallet
+	const accounts = await ethers.getSigners();
 
-  // Fetch network
-  const { chainId } = await ethers.provider.getNetwork();
-  console.log('Using chain Id:', chainId);
-  // Fetch deployed tokens
-  const MT = await ethers.getContractAt('Token', config[chainId].MT.address);
-  console.log(`MT fetched from: ${MT.address}\n`);
+	// Fetch network
+	const { chainId } = await ethers.provider.getNetwork();
+	console.log('Using chain Id:', chainId);
+	// Fetch deployed tokens
+	const MT = await ethers.getContractAt('Token', config[chainId].MT.address);
+	console.log(`MT fetched from: ${MT.address}\n`);
 
-  const mETH = await ethers.getContractAt(
-    'Token',
-    config[chainId].mETH.address
-  );
-  console.log(`mETH fetched from: ${mETH.address}\n`);
+	const mETH = await ethers.getContractAt('Token', config[chainId].mETH.address);
+	console.log(`mETH fetched from: ${mETH.address}\n`);
 
-  const mDAI = await ethers.getContractAt(
-    'Token',
-    config[chainId].mDAI.address
-  );
-  console.log(`mDAI fetched from: ${mDAI.address}\n`);
+	const mDAI = await ethers.getContractAt('Token', config[chainId].mDAI.address);
+	console.log(`mDAI fetched from: ${mDAI.address}\n`);
 
-  // Fetch deployed exchange
-  const exchange = await ethers.getContractAt(
-    'Exchange',
-    config[chainId].Exchange.address
-  );
-  console.log(`Exchange fetched from: ${exchange.address}\n`);
+	// Fetch deployed exchange
+	const exchange = await ethers.getContractAt('Exchange', config[chainId].exchange.address);
+	console.log(`Exchange fetched from: ${exchange.address}\n`);
 
-  // Give 10,000 mETH to user2 (user1 deployed the contracts and, therefore, has all the tokens at the beginning)
-  const amount = tokens(10000);
+	// Give 10,000 mETH to user2 (user1 deployed the contracts and, therefore, has all the tokens at the beginning)
+	const amount = tokens(10000);
 
-  const user1 = accounts[0];
-  const user2 = accounts[2]; // account[1] is feeAccount
-  await mETH.connect(user1).transfer(user2.address, amount);
-  console.log(
-    `Transferred ${amount} from ${user1.address} to ${user2.address}\n`
-  );
-  // user1 approves 10,000 MT
-  await MT.connect(user1).approve(exchange.address, amount);
-  console.log(`Approved ${amount} MT tokens from ${user1.address}`);
-  // user1 deposits 10,000 MT
-  await exchange.connect(user1).depositToken(MT.address, amount);
-  console.log(`Deposited ${amount} MT tokens from ${user1.address}`);
+	const user1 = accounts[0];
+	const user2 = accounts[2]; // account[1] is feeAccount
+	await mETH.connect(user1).transfer(user2.address, amount);
+	console.log(`Transferred ${amount} from ${user1.address} to ${user2.address}\n`);
+	// user1 approves 10,000 MT
+	await MT.connect(user1).approve(exchange.address, amount);
+	console.log(`Approved ${amount} MT tokens from ${user1.address}`);
+	// user1 deposits 10,000 MT
+	await exchange.connect(user1).depositToken(MT.address, amount);
+	console.log(`Deposited ${amount} MT tokens from ${user1.address}`);
 
-  // user2 approves 10,000 mETH
-  await mETH.connect(user2).approve(exchange.address, amount);
-  console.log(`Approved ${amount} mETH tokens from ${user2.address}`);
-  // user2 deposits 10,000 mETH
-  await exchange.connect(user2).depositToken(mETH.address, amount);
-  console.log(`Deposited ${amount} mETH tokens from ${user2.address}`);
-  // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-  // seed a cancelled order
-
+	// user2 approves 10,000 mETH
+	await mETH.connect(user2).approve(exchange.address, amount);
+	console.log(`Approved ${amount} mETH tokens from ${user2.address}`);
+	// user2 deposits 10,000 mETH
+	await exchange.connect(user2).depositToken(mETH.address, amount);
+	console.log(`Deposited ${amount} mETH tokens from ${user2.address}`);
+	// -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+	// seed a cancelled order
+	/**
   let transaction, receipt, orderId;
   // user1 makes order to get some mETH back
   transaction = await exchange
@@ -127,12 +116,12 @@ async function main() {
       .connect(user2)
       .makeOrder(MT.address, tokens(10 * i), mETH.address, tokens(10));
     console.log(`Made orders from ${user2.address}\n`);
-  }
+  } */
 }
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+	console.error(error);
+	process.exitCode = 1;
 });

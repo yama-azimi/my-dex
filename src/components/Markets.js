@@ -3,41 +3,31 @@ import { useSelector, useDispatch } from 'react-redux';
 import { loadTokens } from '../store/interactions';
 
 const Markets = () => {
-  const provider = useSelector((state) => state.provider.conection);
-  const chainId = useSelector((state) => state.provider.chainId);
+	const provider = useSelector((state) => state.provider.connection); // connection was misspelled conection
+	const chainId = useSelector((state) => state.provider.chainId);
 
-  const dispatch = useDispatch();
-  const marketHandler = async (e) => {
-    loadTokens(provider, e.target.value.split(','), dispatch);
-  };
+	const dispatch = useDispatch();
+	const marketHandler = async (e) => {
+		loadTokens(provider, e.target.value.split(','), dispatch);
+	};
 
-  return (
-    <div className='component exchange__markets'>
-      <div className='component__header'>
-        <h2>Select Market</h2>
-      </div>
+	return (
+		<div className='component exchange__markets'>
+			<div className='component__header'>
+				<h2>Select Market</h2>
+			</div>
 
-      {chainId && config[chainId] ? (
-        <select name='markets' id='markets' onChange={marketHandler}>
-          <option
-            value={`${config[chainId].MT.address},${config[chainId].mETH.address}`}
-          >
-            {' '}
-            MT / mETH{' '}
-          </option>
-          <option
-            value={`${config[chainId].MT.address},${config[chainId].mDAI.address}`}
-          >
-            {' '}
-            MT / mDAI{' '}
-          </option>
-        </select>
-      ) : (
-        <p>Not deployed to network</p>
-      )}
+			{chainId && config[chainId] ? (
+				<select name='markets' id='markets' onChange={marketHandler}>
+					<option value={`${config[chainId].MT.address},${config[chainId].mETH.address}`}> MT / mETH </option>
+					<option value={`${config[chainId].MT.address},${config[chainId].mDAI.address}`}> MT / mDAI </option>
+				</select>
+			) : (
+				<p>Not deployed to network</p>
+			)}
 
-      <hr />
-    </div>
-  );
+			<hr />
+		</div>
+	);
 };
 export default Markets;

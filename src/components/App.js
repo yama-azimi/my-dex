@@ -5,13 +5,21 @@ import { loadProvider, loadNetwork, loadAccount, loadTokens, loadExchange, subsc
 import Navbar from './Navbar';
 import Markets from './Markets';
 import Balance from './Balance';
+import Order from './Order';
 
 function App() {
 	const dispatch = useDispatch();
 
 	const loadBlockchainData = async () => {
 		// Connect to the blockchain
-		const provider = loadProvider(dispatch);
+		// await is added.
+		const provider = await loadProvider(dispatch);
+		// this if statement is added.
+		if (!provider) {
+			// Handle provider loading failure
+			console.error('Failed to load provider');
+			return;
+		}
 		const chainId = await loadNetwork(provider, dispatch);
 
 		// Reload page when network changes.
@@ -26,6 +34,7 @@ function App() {
 		//Token smart contract
 		const MT = config[chainId].MT.address;
 		const mETH = config[chainId].mETH.address;
+		// const mDAI = config[chainId].mDAI.address;
 		await loadTokens(provider, [MT, mETH], dispatch);
 
 		// Exchange contract
@@ -49,7 +58,7 @@ function App() {
 
 						<Balance />
 
-						{/* Order */}
+						<Order />
 					</section>
 					<section className='exchange__section--right grid'>
 						{/* PriceChart */}
