@@ -71,6 +71,8 @@ const DEFAULT_EXCHANGE_STATE = {
 	loaded: false,
 	contract: {},
 	transaction: { isSuccessful: false },
+	cancelledOrders: { loaded: false, data: [] },
+	filledOrders: { loaded: false, data: [] },
 	allOrders: { loaded: false, data: [] },
 	events: [],
 };
@@ -83,6 +85,30 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
 				...state,
 				loaded: true,
 				contract: action.exchange,
+			};
+		case 'CANCELLED_ORDERS_LOADED':
+			return {
+				...state,
+				cancelledOrders: {
+					loaded: true,
+					data: action.cancelledOrders,
+				},
+			};
+		case 'FILLED_ORDERS_LOADED':
+			return {
+				...state,
+				filledOrders: {
+					loaded: true,
+					data: action.filledOrders,
+				},
+			};
+		case 'ALL_ORDERS_LOADED':
+			return {
+				...state,
+				allOrders: {
+					loaded: true,
+					data: action.allOrders,
+				},
 			};
 		case 'EXCHANGE_TOKEN_1_BALANCE_LOADED':
 			return {
@@ -146,7 +172,10 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
 				},
 			};
 		case 'NEW_ORDER_SUCCESS':
+			// Prevent duplicate orders
+			// Detect whether the order already exists in allOrders by checking the id.
 			index = state.allOrders.data.findIndex((order) => order._id.toString() === action.order._id.toString());
+			// If no elements satisfy the testing function of findIndex, -1 is returned
 			if (index === -1) {
 				data = [...state.allOrders.data, action.order];
 			} else {
@@ -156,7 +185,6 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
 				...state,
 				allOrders: {
 					...state.allOrders,
-					loaded: true,
 					data,
 				},
 				transaction: {
