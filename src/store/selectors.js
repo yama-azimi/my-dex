@@ -160,3 +160,55 @@ const buildGraphData = (orders) => {
 	});
 	return graphData;
 };
+
+export const filledOrderSelector = createSelector(filledOrders, tokens, (orders, tokens) => {
+	if (!tokens[0] || !tokens[1]) {
+		return;
+	}
+
+	// Filter orders by selected tokens
+	orders = orders.filter((o) => o._tokenGet === tokens[0].address || o._tokenGet === tokens[1].address);
+	orders = orders.filter((o) => o._tokenGive === tokens[0].address || o._tokenGive === tokens[1].address);
+
+	// Step 1: Sort orders by time ascending
+	orders = orders.sort((a, b) => a._timiestamp - b._timiestamp);
+	// Step 2: Apply order colors (decorate order)
+
+	// Decorate orders
+	orders = decorateFilledOrders(orders, tokens);
+
+	// Step 3: Sort orders by time descending for UI
+	orders = orders.sort((a, b) => b._timiestamp - a._timiestamp);
+
+	return orders;
+});
+
+const decorateFilledOrders = (orders, tokens) => {
+	return orders.map((order) => {
+		// Track previous order to compare history
+		let previousOrder = orders[0];
+		// decorate each individual order
+		order = decorateOrder(order, tokens);
+		order = decorateFilledOrder(order, previousOrder);
+		previousOrder = order;
+		return order;
+	});
+};
+
+const decorateFilledOrder = (order, previousOrder) => {
+	return { ...order, _tokenPriceClass: tokenPriceClass(order._tokenPrice, order._id, previousOrder) };
+};
+
+const tokenPriceClass = (tokenPrice, orderId, previousOrder) => {
+	// Show green price if only one order exists
+	if (previousOrder._id === orderId) {
+		return GREEN;
+	}
+	// Show green price if order price is higher than previous order price
+	// Show red price if order price is lower than previous order price
+	if (previousOrder._tokenPrice <= tokenPrice) {
+		return GREEN;
+	} else {
+		return RED;
+	}
+};
