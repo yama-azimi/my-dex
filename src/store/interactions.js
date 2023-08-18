@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import TOKEN_ABI from '../abis/Token.json';
 import EXCHANGE_ABI from '../abis/Exchange.json';
+import { get } from 'lodash';
 // import { tokens } from './reducers';
 
 export const loadProvider = (dispatch) => {
@@ -101,7 +102,12 @@ export const subscribeToEvents = (exchange, dispatch) => {
 		const order = event.args;
 		dispatch({ type: 'NEW_ORDER_SUCCESS', order, event });
 	});
+	exchange.on('Cancel', (id, user, tokenGet, amountGet, tokenGive, amountGive, timestamp, event) => {
+		const order = event.args;
+		dispatch({ type: 'CANCEL_ORDER_SUCCESS', order, event });
+	});
 };
+
 export const transferTokens = async (provider, exchange, transferType, token, amount, dispatch) => {
 	let transaction;
 
@@ -156,5 +162,17 @@ export const makeSellOrder = async (provider, exchange, tokens, order, dispatch)
 		await transaction.wait();
 	} catch (error) {
 		dispatch({ type: 'NEW_ORDER_FAIL' });
+	}
+};
+
+export const cancelOrder = async (provider, exchange, order, dispatch) => {
+	dispatch({ type: 'CANCEL_ORDER_REQUEST' });
+
+	try {
+		const signer = await provider.getSigner();
+		const transaction = await exchange.connect(signer).cancelOrder(order._id);
+		await transaction.wait();
+	} catch (error) {
+		dispatch({ type: 'CANCEL_ORDER_FAIL' });
 	}
 };

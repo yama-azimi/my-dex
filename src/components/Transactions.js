@@ -1,15 +1,19 @@
 import { useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { myOpenOrdersSelector, myFilledOrdersSelector } from '../store/selectors';
 import Banner from './Banner';
+import { cancelOrder } from '../store/interactions';
 const Transactions = () => {
 	// State to manage whether to show open orders or trades
 	const [showMyOrders, setShowMyOrders] = useState(true);
 	// Fetch symbols and user's open orders from Redux store
+	const provider = useSelector((state) => state.provider.connection);
+	const exchange = useSelector((state) => state.exchange.contract);
 	const symbols = useSelector((state) => state.tokens.symbols);
 	const myOpenOrders = useSelector(myOpenOrdersSelector);
 	const myFilledOrders = useSelector(myFilledOrdersSelector);
 
+	const dispatch = useDispatch();
 	// Refs to access the tab buttons for handling click events
 	const tradeRef = useRef(null);
 	const orderRef = useRef(null);
@@ -27,6 +31,10 @@ const Transactions = () => {
 			tradeRef.current.className = 'tab';
 			setShowMyOrders(true);
 		}
+	};
+
+	const cancelHandler = (order) => {
+		cancelOrder(provider, exchange, order, dispatch);
 	};
 	return (
 		<div className='component exchange__transactions'>
@@ -65,7 +73,11 @@ const Transactions = () => {
 											<tr key={index}>
 												<td style={{ color: `${order._orderTypeClass}` }}>{order._token0Amount}</td>
 												<td>{order._tokenPrice}</td>
-												<td>{/* Add cancel-order button here (Later) */}</td>
+												<td>
+													<button className='button--sm' onClick={() => cancelHandler(order)}>
+														Cancel
+													</button>
+												</td>
 											</tr>
 										);
 									})}
