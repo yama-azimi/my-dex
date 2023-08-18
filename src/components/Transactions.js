@@ -1,78 +1,121 @@
+import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { myOpenOrderSelector } from '../store/selectors';
+import { myOpenOrdersSelector, myFilledOrdersSelector } from '../store/selectors';
 import Banner from './Banner';
 const Transactions = () => {
+	// State to manage whether to show open orders or trades
+	const [showMyOrders, setShowMyOrders] = useState(true);
+	// Fetch symbols and user's open orders from Redux store
 	const symbols = useSelector((state) => state.tokens.symbols);
-	const myOpenOrders = useSelector(myOpenOrderSelector);
+	const myOpenOrders = useSelector(myOpenOrdersSelector);
+	const myFilledOrders = useSelector(myFilledOrdersSelector);
+
+	// Refs to access the tab buttons for handling click events
+	const tradeRef = useRef(null);
+	const orderRef = useRef(null);
+
+	// Function to handle tab button clicks and toggle between orders and trades
+	const tabHandler = (e) => {
+		// Tab switching logic based on the clicked tab
+		// Changes the view to either "Orders" or "Trades"
+		if (e.target.className !== orderRef.current.className) {
+			e.target.className = 'tab tab--active';
+			orderRef.current.className = 'tab';
+			setShowMyOrders(false);
+		} else {
+			e.target.className = 'tab tab--active';
+			tradeRef.current.className = 'tab';
+			setShowMyOrders(true);
+		}
+	};
 	return (
 		<div className='component exchange__transactions'>
-			<div>
-				<div className='component__header flex-between'>
-					<h2>My Orders</h2>
+			{showMyOrders ? (
+				<div>
+					<div className='component__header flex-between'>
+						<h2>My Orders</h2>
 
-					<div className='tabs'>
-						<button className='tab tab--active'>Orders</button>
-						<button className='tab'>Trades</button>
+						<div className='tabs'>
+							<button onClick={tabHandler} ref={orderRef} className='tab tab--active'>
+								Orders
+							</button>
+							<button onClick={tabHandler} ref={tradeRef} className='tab'>
+								Trades
+							</button>
+						</div>
 					</div>
-				</div>
 
-				{!myOpenOrders || myOpenOrders.length === 0 ? (
-					<Banner text='No open orders' />
-				) : (
+					{!myOpenOrders || myOpenOrders.length === 0 ? (
+						<Banner text='No open orders' />
+					) : (
+						<table>
+							<thead>
+								<tr>
+									<th>{symbols && symbols[0]}</th>
+									<th>
+										{symbols && symbols[1]}/{symbols && symbols[0]}
+									</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								{myOpenOrders &&
+									myOpenOrders.map((order, index) => {
+										return (
+											<tr key={index}>
+												<td style={{ color: `${order._orderTypeClass}` }}>{order._token0Amount}</td>
+												<td>{order._tokenPrice}</td>
+												<td>{/* Add cancel-order button here (Later) */}</td>
+											</tr>
+										);
+									})}
+							</tbody>
+						</table>
+					)}
+				</div>
+			) : (
+				<div>
+					<div className='component__header flex-between'>
+						<h2>My Transactions</h2>
+
+						<div className='tabs'>
+							<button onClick={tabHandler} ref={orderRef} className='tab tab--active'>
+								Orders
+							</button>
+							<button onClick={tabHandler} ref={tradeRef} className='tab'>
+								Trades
+							</button>
+						</div>
+					</div>
+
 					<table>
 						<thead>
 							<tr>
+								<th>Time</th>
 								<th>{symbols && symbols[0]}</th>
 								<th>
 									{symbols && symbols[1]}/{symbols && symbols[0]}
 								</th>
-								<th></th>
 							</tr>
 						</thead>
 						<tbody>
-							{myOpenOrders &&
-								myOpenOrders.map((order, index) => {
+							{myFilledOrders &&
+								myFilledOrders.map((order, index) => {
 									return (
 										<tr key={index}>
-											<td style={{ color: `${order._orderTypeClass}` }}>{order._token0Amount}</td>
+											<td>{order._formattedTimestamp}</td>
+											<td style={{ color: `${order._orderClass}` }}>
+												{order._orderSign}
+												{order._token0Amount}
+											</td>
 											<td>{order._tokenPrice}</td>
-											<td>{/* Add cancel-order button here (Later) */}</td>
 										</tr>
 									);
 								})}
 						</tbody>
 					</table>
-				)}
-			</div>
-
-			{/* <div>
-          <div className="component__header flex-between">
-            <h2>My Transactions</h2>
-            
-            <div className="tabs">
-              <button className="tab tab--active">Orders</button>
-              <button className="tab">Trades</button>
-            </div> 
-          </div>
-  
-          <table>
-            <thead>
-              <tr>
-                <th></th>
-                <th></th>
-                <th></th> 
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td></td>
-                <td></td>
-                <td></td> 
-              </tr>
-            </tbody>
-          </table>
-  
-        </div> */}
+				</div>
+			)}
 		</div>
 	);
 };

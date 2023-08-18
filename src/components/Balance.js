@@ -66,12 +66,6 @@ const Balance = () => {
 		// console.log('Withdrawing tokens ....');
 	};
 
-	// useEffect(() => {
-	// 	if (exchange && tokens && account) {
-	// 		loadBalances(exchange, tokens, account, dispatch);
-	// 	}
-	// }, [exchange, tokens, account, transferInProgress, dispatch]);
-
 	useEffect(() => {
 		if (exchange && tokens.length > 1 && !!account) {
 			loadBalances(exchange, tokens, account, dispatch);
