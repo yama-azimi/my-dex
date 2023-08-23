@@ -3,6 +3,7 @@ import { get, groupBy, reject, minBy, maxBy } from 'lodash';
 import { ethers } from 'ethers';
 import moment from 'moment';
 
+const events = (state) => get(state, 'exchange.events');
 const tokens = (state) => get(state, 'tokens.contracts');
 const account = (state) => get(state, 'provider.account');
 const allOrders = (state) => get(state, 'exchange.allOrders.data', []);
@@ -98,9 +99,9 @@ const decorateOrderBookOrder = (order, tokens) => {
 
 	return {
 		...order,
+		_orderFillAction: orderType === 'buy' ? 'sell' : 'buy', //Check if the logic is correct?
 		_orderType: orderType,
 		_orderTypeClass: orderType === 'buy' ? GREEN : RED,
-		_orderFillAction: orderType === 'buy' ? 'sell' : 'buy', //Check if the logic is correct?
 	};
 };
 
@@ -298,3 +299,10 @@ const decorateMyFilledOrder = (order, account, tokens) => {
 		_orderSign: orderType === 'buy' ? '+' : '-',
 	};
 };
+
+export const myEventsSelector = createSelector(account, events, (account, events) => {
+	events = events.filter((e) => e.args._user === account);
+	console.log(events);
+
+	return events;
+});

@@ -4,9 +4,8 @@ import { myOpenOrdersSelector, myFilledOrdersSelector } from '../store/selectors
 import Banner from './Banner';
 import { cancelOrder } from '../store/interactions';
 const Transactions = () => {
-	// State to manage whether to show open orders or trades
 	const [showMyOrders, setShowMyOrders] = useState(true);
-	// Fetch symbols and user's open orders from Redux store
+
 	const provider = useSelector((state) => state.provider.connection);
 	const exchange = useSelector((state) => state.exchange.contract);
 	const symbols = useSelector((state) => state.tokens.symbols);
@@ -14,14 +13,12 @@ const Transactions = () => {
 	const myFilledOrders = useSelector(myFilledOrdersSelector);
 
 	const dispatch = useDispatch();
-	// Refs to access the tab buttons for handling click events
+
 	const tradeRef = useRef(null);
 	const orderRef = useRef(null);
 
 	// Function to handle tab button clicks and toggle between orders and trades
 	const tabHandler = (e) => {
-		// Tab switching logic based on the clicked tab
-		// Changes the view to either "Orders" or "Trades"
 		if (e.target.className !== orderRef.current.className) {
 			e.target.className = 'tab tab--active';
 			orderRef.current.className = 'tab';
