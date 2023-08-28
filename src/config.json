@@ -1,24 +1,49 @@
 {
-  "31337": {
-    "explorerURL": "#",
+	"31337": {
+		"explorerURL": "#",
 
-    "exchange": {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
-    },
-    "MT": {
-      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-    },
-    "mETH": {
-      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
-    },
-    "mDAI": {
-      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-    }
-  },
-  "11155111": {
-    "explorerURL": "https://sepolia.etherscan.io/"
-  },
-  "5": {
-    "explorerURL": "https://goerli.etherscan.io/"
-  }
+		"exchange": {
+			"address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+		},
+		"MT": {
+			"address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+		},
+		"mETH": {
+			"address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+		},
+		"mDAI": {
+			"address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+		}
+	},
+	"11155111": {
+		"explorerURL": "https://sepolia.etherscan.io/",
+
+		"exchange": {
+			"address": "0xc0c49f022FdA1D574455Db731372E5Dae368C664"
+		},
+		"MT": {
+			"address": "0xDAe6fDcb34efeE9A7286D7e51a55ed7a389194a8"
+		},
+		"mETH": {
+			"address": "0xEC65131340B597bC837BB543a3E83Edb7229f1FC"
+		},
+		"mDAI": {
+			"address": "0x433Ea439b1BdaC11e7a5a9E43b17E01573c06994"
+		}
+	},
+	"5": {
+		"explorerURL": "https://goerli.etherscan.io/",
+		"exchange": {
+			"address": "0x6c683cf4021f9164566098d73bC8A7BB671A7CCc"
+		},
+		"MT": {
+			"address": "0x4EE05eafBb8e276360194BeB09C65226Dc9Aa57E"
+		},
+		"mETH": {
+			"address": "0x6Ebb02c22347E7fD5a7444Af62329DB737a36e53"
+		},
+		"mDAI": {
+			"address": "0x3a1Aef8E9684F8191408F4588EC877032dd3469D"
+		}
+	}
 }
